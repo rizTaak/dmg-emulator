@@ -72,6 +72,4 @@ add_executable(${PROJECT_NAME} ${EMU_CPP_FILES} src/main.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
-add_subdirectory(tests)
-
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES}  spdlog::spdlog_header_only)
