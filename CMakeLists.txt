@@ -3,16 +3,13 @@ project(dmg VERSION 0.1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(OpenGL_GL_PREFERENCE GLVND)
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+
 
 find_package(SDL2 REQUIRED)
-#find_package(X11 REQUIRED)
-#find_package(OpenGL REQUIRED)
-#find_package(GLUT REQUIRED)
+find_package(spdlog REQUIRED)
 
-#include_directories(${X11_INCLUDE_DIR})
-#include_directories(${OPENGL_INCLUDE_DIR})
-#include_directories(${GLUT_INCLUDE_DIR})
 include_directories(${SDL2_INCLUDE_DIRS})
 
 include_directories(include)
@@ -70,12 +67,11 @@ set(EMU_CPP_FILES ${PROJECT_SOURCE_DIR}/src/emulator/rom.cpp
         ${PROJECT_SOURCE_DIR}/src/emulator/time.cpp
         ${PROJECT_SOURCE_DIR}/src/emulator/apu.cpp)
 
-#link_directories(${X11_LIBRARIES})
-
 add_executable(${PROJECT_NAME} ${EMU_CPP_FILES} src/main.cpp)
+
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 add_subdirectory(tests)
 
-target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES}  spdlog::spdlog_header_only)
