@@ -34,9 +34,9 @@ namespace emulator {
                 m_cpu.fetch_decode_execute();
                 auto cpu_ticks = m_cpu.last_ticks();
                 m_gpu.step(cpu_ticks);
+                m_apu.step(cpu_ticks);
                 m_timer.step(cpu_ticks);
                 m_host->step(cpu_ticks);
-                m_apu.step(cpu_ticks);
                 m_wall_clock.sync(cpu_ticks);
             } catch (std::exception &e) {
                 SPDLOG_LOGGER_ERROR(&log, e.what());
