@@ -13,6 +13,12 @@ namespace emulator {
 
     class MemoryBank {
     public:
+        MemoryBank() = default;
+        MemoryBank(const MemoryBank &other) = delete;
+        MemoryBank(const MemoryBank &&other) = delete;
+        MemoryBank &operator=(const MemoryBank &) = delete;
+        MemoryBank &operator=(MemoryBank &&) = delete;
+
         virtual register_8_t read_byte(register_16_t address) = 0;
 
         virtual register_8_t &get_ref_byte(register_16_t address) = 0;
@@ -32,6 +38,11 @@ namespace emulator {
         std::vector<register_8_t> m_buffer;
         register_16_t m_offset;
     public:
+        RomBank(const RomBank &other) = delete;
+        RomBank(const RomBank &&other) = delete;
+        RomBank &operator=(const RomBank &) = delete;
+        RomBank &operator=(RomBank &&) = delete;
+
         RomBank(register_16_t size, register_16_t offset);
 
         register_8_t read_byte(register_16_t address) override;
@@ -52,9 +63,16 @@ namespace emulator {
 
         friend class Mbc3Cartridge;
 
-        Cartridge *m_cartridge;
+        Cartridge *m_cartridge{nullptr};
     public:
+        CartridgeBank(const CartridgeBank &other) = delete;
+        CartridgeBank(const CartridgeBank &&other) = delete;
+        CartridgeBank &operator=(const CartridgeBank &) = delete;
+        CartridgeBank &operator=(CartridgeBank &&) = delete;
+
         CartridgeBank(const std::string &file_name, register_16_t offset);
+
+        void load_rom(const std::string &rom_file);
 
         cartridge_type cart_type();
 
@@ -67,25 +85,34 @@ namespace emulator {
         }
 
         register_8_t &get_ref_byte(register_16_t address) override {
-            return m_cartridge->get_ref_byte(address);
+            throw std::runtime_error("ref in cartridge not allowed");
         }
 
         void write_byte(register_16_t address, register_8_t value) override {
             m_cartridge->write_byte(address, value);
         }
 
-        ~CartridgeBank() override {
-            delete m_cartridge;
+        bool has_valid_cartridge() {
+            return m_buffer.size() > 0;
         }
+
+        ~CartridgeBank() override = default;
     };
 
     class RamBank : public RomBank {
     public:
+        RamBank(const RamBank &other) = delete;
+        RamBank(const RamBank &&other) = delete;
+        RamBank &operator=(const RamBank &) = delete;
+        RamBank &operator=(RamBank &&) = delete;
+
         inline bool is_valid(const register_16_t address) {
             return m_offset <= address && address < (m_offset + m_buffer.size());
         }
 
         explicit RamBank(register_16_t size, register_16_t offset);
+
+        void clear_memory();
 
         void write_byte(register_16_t address, register_8_t value) override;
     };
@@ -94,6 +121,11 @@ namespace emulator {
         register_16_t m_second_offset;
         register_16_t m_second_size;
     public:
+        DualMappedRamBank(const DualMappedRamBank &other) = delete;
+        DualMappedRamBank(const DualMappedRamBank &&other) = delete;
+        DualMappedRamBank &operator=(const DualMappedRamBank &) = delete;
+        DualMappedRamBank &operator=(DualMappedRamBank &&) = delete;
+
         explicit DualMappedRamBank(register_16_t size, register_16_t offset,
                                    register_16_t second_size, register_16_t second_offset);
 
@@ -122,6 +154,11 @@ namespace emulator {
         Cpu *m_cpu;
         Apu *m_apu;
     public:
+        IoRamBank(const IoRamBank &other) = delete;
+        IoRamBank(const IoRamBank &&other) = delete;
+        IoRamBank &operator=(const IoRamBank &) = delete;
+        IoRamBank &operator=(IoRamBank &&) = delete;
+
         IoRamBank(Memory &mem, register_16_t size, register_16_t offset);
 
         void connect(Cpu *cpu) {
@@ -144,12 +181,17 @@ namespace emulator {
 
     class VideoRamBank : public RamBank {
     public:
+        VideoRamBank(const VideoRamBank &other) = delete;
+        VideoRamBank(const VideoRamBank &&other) = delete;
+        VideoRamBank &operator=(const VideoRamBank &) = delete;
+        VideoRamBank &operator=(VideoRamBank &&) = delete;
+
         explicit VideoRamBank(register_16_t size, register_16_t offset);
     };
 
     class Memory {
         CartridgeBank m_boot_rom;
-        CartridgeBank m_cartridge;
+        CartridgeBank m_cartridge_rom;
         VideoRamBank m_video_ram;
         RamBank m_switchable_ram;
         DualMappedRamBank m_internal_ram;
@@ -186,6 +228,10 @@ namespace emulator {
         void connect(Cpu *cpu) {
             m_io_ram.connect(cpu);
         }
+
+        void load_game_rom(const std::string &game_rom);
+        bool valid_boot_rom();
+        void clear_memory();
 
     private:
         MemoryBank &get_bank(register_16_t address);

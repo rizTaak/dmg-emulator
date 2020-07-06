@@ -14,6 +14,12 @@ namespace emulator {
 
     Cartridge::Cartridge(CartridgeBank &bank) :
             m_bank{bank} {
+        if (m_bank.m_buffer.empty()) {
+            m_rom_size = 0;
+            m_ram_size = 0;
+            return;
+        }
+
         m_type = static_cast<cartridge_type>(m_bank.m_buffer[mem_registers::cartridge_type]);
         auto rom_size = m_bank.m_buffer[mem_registers::rom_size];
         if (0x00 <= rom_size && rom_size <= 0x08) {
@@ -51,11 +57,11 @@ namespace emulator {
         return m_type;
     }
 
-    size_t Cartridge::rom_size() {
+    size_t Cartridge::rom_size() const {
         return m_rom_size;
     }
 
-    size_t Cartridge::ram_size() {
+    size_t Cartridge::ram_size() const {
         return m_ram_size;
     }
 
@@ -86,15 +92,23 @@ namespace emulator {
         return imm;
     }
 
-    register_8_t &Mbc0Cartridge::get_ref_byte(register_16_t address) {
-        auto actual = address - m_bank.m_offset;
-        assert(actual >= 0 && actual < m_bank.m_buffer.size());
-        return m_bank.m_buffer.at(actual);
-    }
-
     void Mbc0Cartridge::write_byte(register_16_t address, register_8_t value) {
 
     }
+
+    NullCartridge::NullCartridge(CartridgeBank &bank) :
+            Cartridge(bank) {
+
+    }
+
+    register_8_t NullCartridge::read_byte(register_16_t address) {
+        return 0x00;
+    }
+
+    void NullCartridge::write_byte(register_16_t address, register_8_t value) {
+
+    }
+
 
     Mbc1Cartridge::Mbc1Cartridge(CartridgeBank &bank) :
             Cartridge(bank),
@@ -171,10 +185,6 @@ namespace emulator {
         }
     }
 
-    register_8_t &Mbc1Cartridge::get_ref_byte(register_16_t address) {
-        throw std::runtime_error("not implemented");
-    }
-
     void Mbc1Cartridge::write_byte(register_16_t address, register_8_t value) {
         if (0xa000 <= address && address < 0xc000) {
             // verified
@@ -219,10 +229,6 @@ namespace emulator {
         return m_ram_enabled && address < m_ram_size;
     }
 
-    size_t  Mbc1Cartridge::combined_bank() {
-        return (m_2bit_bank << 5u | m_5bit_bank);
-    }
-
     Mbc5Cartridge::Mbc5Cartridge(CartridgeBank &bank) :
             Cartridge(bank),
             m_ramg{false},
@@ -238,7 +244,7 @@ namespace emulator {
         return m_ramg && address < m_ram_size;
     }
 
-    size_t Mbc5Cartridge::combined_rom_bank() {
+    size_t Mbc5Cartridge::combined_rom_bank() const {
         return (m_romb1 << 8u | m_romb0);
     }
 
@@ -264,10 +270,6 @@ namespace emulator {
         else {
             throw std::runtime_error("mbc5 rom logic error! (rom) address");
         }
-    }
-
-    register_8_t &Mbc5Cartridge::get_ref_byte(register_16_t address) {
-        throw std::runtime_error("not implemented");
     }
 
     void Mbc5Cartridge::write_byte(register_16_t address, register_8_t value) {
@@ -341,10 +343,6 @@ namespace emulator {
         }
     }
 
-    register_8_t &Mbc3Cartridge::get_ref_byte(register_16_t address) {
-        throw std::runtime_error("not implemented");
-    }
-
     void Mbc3Cartridge::write_byte(register_16_t address, register_8_t value) {
         if (0xa000 <= address && address < 0xc000) {
             if (m_ram_enabled == 0x0au){
@@ -375,7 +373,7 @@ namespace emulator {
 
     bool Mbc3Cartridge::has_battery() {
         return m_type == cartridge_type::mbc3_ram_battery
-               | m_type == cartridge_type::mbc3_timer_battery
-               | m_type == cartridge_type::mbc3_timer_ram_battery;
+               || m_type == cartridge_type::mbc3_timer_battery
+               || m_type == cartridge_type::mbc3_timer_ram_battery;
     }
 }

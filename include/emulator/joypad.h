@@ -32,6 +32,11 @@ namespace emulator {
         }
 
     public:
+        JoyPad(const JoyPad &other) = delete;
+        JoyPad(const JoyPad &&other) = delete;
+        JoyPad &operator=(const JoyPad &) = delete;
+        JoyPad &operator=(JoyPad &&) = delete;
+
         explicit JoyPad(Cpu &cpu):
                 m_cpu{cpu},
                 m_dir{0x0f},

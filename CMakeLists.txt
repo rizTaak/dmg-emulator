@@ -18,7 +18,7 @@ include_directories(lib)
 configure_file(include/version.h.in version.h)
 file(COPY roms DESTINATION ${CMAKE_BINARY_DIR})
 
-set(EMU_CPP_FILES ${PROJECT_SOURCE_DIR}/src/emulator/rom.cpp
+set(EMU_CPP_FILES
         ${PROJECT_SOURCE_DIR}/src/emulator/cpu.cpp
         ${PROJECT_SOURCE_DIR}/src/emulator/ops/ops_0x.cpp
         ${PROJECT_SOURCE_DIR}/src/emulator/ops/ops_1x.cpp

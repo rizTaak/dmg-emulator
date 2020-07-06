@@ -309,6 +309,16 @@ namespace emulator {
         m_mem.write_byte(0xFF4B, 0x00);
 
         m_mem.write_byte(0xFFFF, 0x00);
-        m_mem.write_byte(0xff50, 0xff);
+        m_mem.write_byte(mem_registers::boot_rom_disabled, 0xff);
+    }
+
+    void Cpu::init_for_boot() {
+        m_mem.write_byte(mem_registers::boot_rom_disabled, 0x00);
+        m_pc = 0x0000;
+        m_af = 0x0000;
+        m_bc = 0x0000;
+        m_de = 0x0000;
+        m_hl = 0x0000;
+        m_sp = 0x0000;
     }
 }

@@ -185,10 +185,16 @@ namespace emulator {
         float m_audio_buffer[sample_size] = { 0 };
         register_8_t m_frame_seq = 0;
     public:
+        Apu(const Apu &other) = delete;
+        Apu(const Apu &&other) = delete;
+        Apu &operator=(const Apu &) = delete;
+        Apu &operator=(Apu &&) = delete;
+
         register_8_t left_volume();
         register_8_t right_volume();
         explicit Apu(Memory &mem);
         void step(clock_t ticks);
+        void clear_audio();
         WaveChannel &wave();
         SquareChannel &ch0();
         SquareChannel &ch1();

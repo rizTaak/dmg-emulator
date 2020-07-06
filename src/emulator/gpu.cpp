@@ -61,15 +61,10 @@ namespace emulator {
         m_lcd_status = 0b1000'0000;
         set_lcd_mode(screen_mode::oam);
         m_valid_y_sprites.reserve(40);
-        for(int x=0; x<160; x++) {
-            for(int y=0; y<144; y++) {
-                m_gpu_buffer[y*160+x] = 0xff;
-            }
-        }
+        clear_buffer();
         for(register_16_t idx=0; idx<40; idx++) {
             m_sprites.emplace_back(*this, m_mem, idx);
         }
-
     }
 
     void Gpu::step(clock_t ticks) {
@@ -344,5 +339,18 @@ namespace emulator {
             raise_lcd_interrupt();
         }
         m_last_stat_eval = new_eval;
+    }
+
+    void Gpu::clear_buffer() {
+        for(int x=0; x<screen_width; x++) {
+            for(int y=0; y<screen_height; y++) {
+                m_gpu_buffer[y*screen_width+x] = 0xff;
+            }
+        }
+    }
+
+    void Gpu::clear_screen() {
+        clear_buffer();
+        update_frame_buffer();
     }
 }

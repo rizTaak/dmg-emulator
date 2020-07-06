@@ -83,6 +83,11 @@ namespace emulator {
         register_8_t &m_interrupt_enable_register;
         register_8_t &m_interrupt_req_register;
     public:
+        Cpu(const Cpu &other) = delete;
+        Cpu(const Cpu &&other) = delete;
+        Cpu &operator=(const Cpu &) = delete;
+        Cpu &operator=(Cpu &&) = delete;
+
         clock_t last_ticks() const noexcept {
             return m_last;
         }
@@ -364,8 +369,9 @@ namespace emulator {
         }
 
         void init_for_catridge();
+        void init_for_boot();
 
-        register_16_t current_pc() {
+        [[nodiscard]] register_16_t current_pc() const {
             return m_pc;
         }
 

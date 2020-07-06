@@ -2,6 +2,7 @@
 #include <iostream>
 #include <emulator/sdl2.h>
 #include <emulator/gpu.h>
+#include <emulator/dmg.h>
 
 namespace emulator {
     constexpr size_t size_factor = 3;
@@ -23,6 +24,13 @@ namespace emulator {
     }
 
     void Sdl2Host::step(clock_t ticks) {
+        if (ticks == 0) {
+            process_input();
+            SDL_UnlockTexture(m_texture);
+            SDL_RenderClear(m_renderer);
+            SDL_RenderCopy(m_renderer, m_texture, NULL, NULL);
+            SDL_RenderPresent(m_renderer);
+        }
     }
 
     void Sdl2Host::process_input() {
@@ -95,6 +103,15 @@ namespace emulator {
                     }
                     break;
 
+                case (SDL_DROPFILE): {
+                    char* file = event.drop.file;
+                    m_dmg->turn_off();
+                    m_dmg->insert_cartridge(file);
+                    m_dmg->turn_on();
+                    SDL_free(file);
+                    break;
+                }
+
                 case SDLK_ESCAPE:
                 case SDL_QUIT:
                     exit(0);
@@ -131,6 +148,10 @@ namespace emulator {
 
     void Sdl2Host::connect_joy_pad(JoyPad *joy_pad) {
         m_joy_pad = joy_pad;
+    }
+
+    void Sdl2Host::connect_dmg(Dmg *dmg) {
+        m_dmg = dmg;
     }
 
     Sdl2Host::~Sdl2Host() {

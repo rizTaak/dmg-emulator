@@ -133,6 +133,11 @@ namespace emulator {
         std::set<Sprite*> m_used_sprites{};
         bool m_last_stat_eval {false};
     public:
+        Gpu(const Gpu &other) = delete;
+        Gpu(const Gpu &&other) = delete;
+        Gpu &operator=(const Gpu &) = delete;
+        Gpu &operator=(Gpu &&) = delete;
+
         explicit  Gpu(Memory &mem);
         void step(clock_t ticks);
         void dump_tiles(register_8_t idx);
@@ -178,6 +183,7 @@ namespace emulator {
             return m_gpu_buffer;
         }
 
+        void clear_screen();
     private:
         void render_scan_line();
 
@@ -256,7 +262,7 @@ namespace emulator {
 
         void check_and_raise_stat_interrupt();
 
-
+        void clear_buffer();
     };
 }
 

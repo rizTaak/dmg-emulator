@@ -10,9 +10,8 @@ int main(int argc, char* argv[]) {
     auto log = emulator::Logger::get_logger("main");
     try {
         SPDLOG_LOGGER_INFO(&log, "dmg version {}.{}", DMG_VERSION_MAJOR, DMG_VERSION_MINOR);
-        //auto x11 = new emulator::X11System(argv[2]);
         auto sdl = new emulator::Sdl2Host();
-        emulator::Dmg dmg(true, "roms/dmg_rom.bin", argv[1], sdl);
+        emulator::Dmg dmg(false, "roms/dmg_rom.bin", "", sdl);
         dmg.run();
         return 0;
     } catch (std::exception& err) {

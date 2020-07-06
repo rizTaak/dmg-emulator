@@ -22,10 +22,19 @@ namespace emulator {
         bool m_skip_boot;
         RealTime m_wall_clock;
         Apu m_apu;
+        bool m_on {false};
     public:
+        Dmg(const Dmg &other) = delete;
+        Dmg(const Dmg &&other) = delete;
+        Dmg &operator=(const Dmg &) = delete;
+        Dmg &operator=(Dmg &&) = delete;
+
         explicit Dmg(bool skip_boot, const std::string &boot_rom,
                      const std::string &game_rom, Host *host);
         void run();
+        void turn_off();
+        void turn_on();
+        void insert_cartridge(const std::string &game_rom);
     };
 }
 

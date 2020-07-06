@@ -16,6 +16,11 @@ namespace emulator {
         register_8_t &m_tma_modulo;
         register_8_t &m_tac_control;
     public:
+        Timer(const Timer &other) = delete;
+        Timer(const Timer &&other) = delete;
+        Timer &operator=(const Timer &) = delete;
+        Timer &operator=(Timer &&) = delete;
+
         Timer(Memory &mem, Cpu &cpu):
             m_mem {mem},
             m_cpu {cpu},

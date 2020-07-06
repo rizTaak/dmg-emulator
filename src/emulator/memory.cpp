@@ -49,15 +49,26 @@ namespace emulator {
 
     CartridgeBank::CartridgeBank(const std::string &file_name, register_16_t offset) :
             RomBank(0x0000, offset) {
-        std::ifstream file(file_name, std::ios::binary | std::ios::ate);
+        load_rom(file_name);
+    }
+
+    void CartridgeBank::load_rom(const std::string &rom_file) {
+        if (m_cartridge != nullptr) {
+            delete m_cartridge;
+            m_cartridge = nullptr;
+        }
+        std::ifstream file(rom_file, std::ios::binary | std::ios::ate);
         if (!file.good()) {
-            throw std::runtime_error(fmt::format("rom file {} does not exist", file_name));
+            //bad order dependency
+            m_buffer.resize(0);
+            m_cartridge = new NullCartridge(*this);
+            return;
         }
         std::streamsize size = file.tellg();
         file.seekg(0, std::ios::beg);
         m_buffer.resize(size);
         if (!file.read(reinterpret_cast<char *>(m_buffer.data()), size)) {
-            throw std::runtime_error(fmt::format("cannot read from rom file {}", file_name));
+            throw std::runtime_error(fmt::format("cannot read from rom file {}", rom_file));
         }
         //log.info("loaded {} of size {}", file_name, size);
         switch (cart_type()) {
@@ -93,12 +104,20 @@ namespace emulator {
     }
 
     cartridge_type CartridgeBank::cart_type() {
-        register_8_t value = m_buffer[mem_registers::cartridge_type];
-        return static_cast<emulator::cartridge_type>(value);
+        if(!m_buffer.empty()) {
+            register_8_t value = m_buffer[mem_registers::cartridge_type];
+            return static_cast<emulator::cartridge_type>(value);
+        } else {
+            return static_cast<emulator::cartridge_type>(0);
+        }
     }
 
     RamBank::RamBank(register_16_t size, register_16_t offset) :
             RomBank(size, offset) {
+    }
+
+    void RamBank::clear_memory() {
+        memset(m_buffer.data(), 0, m_buffer.size());
     }
 
     void RamBank::write_byte(register_16_t address, register_8_t value) {
@@ -128,7 +147,7 @@ namespace emulator {
 
     Memory::Memory(const std::string &boot_rom, const std::string &game_rom) :
             m_boot_rom{boot_rom, 0x0000},
-            m_cartridge{game_rom, 0x0000},
+            m_cartridge_rom{game_rom, 0x0000},
             m_video_ram{0x2000, 0x8000},
             m_switchable_ram{0x2000, 0xA000},
             m_internal_ram{0x2000, 0xC000, 0x1E00, 0xE000},
@@ -166,11 +185,11 @@ namespace emulator {
         } else if (m_internal_ram.is_valid(address) || m_internal_ram.is_valid_second(address)) {
             return m_internal_ram;
         }
-        if (m_cartridge.is_valid(address)) {
+        if (m_cartridge_rom.is_valid(address)) {
             if (address < 0x0100 && m_boot_disabled == 0) {
                 return m_boot_rom;
             }
-            return m_cartridge;
+            return m_cartridge_rom;
         } else if (m_internal2_ram.is_valid(address)) {
             return m_internal2_ram;
         } else if (m_switchable_ram.is_valid(address)) {
@@ -191,7 +210,7 @@ namespace emulator {
         register_16_t address = 0x0000;
         while (true) {
             register_16_t count = 0;
-            if (m_cartridge.is_valid(address)) {
+            if (m_cartridge_rom.is_valid(address)) {
                 ++count;
             } else if (m_switchable_ram.is_valid(address)) {
                 ++count;
@@ -230,6 +249,25 @@ namespace emulator {
 
     void Memory::connect_apu(Apu *apu) {
         m_io_ram.connect_apu(apu);
+    }
+
+    void Memory::load_game_rom(const std::string &game_rom) {
+        m_cartridge_rom.load_rom(game_rom);
+    }
+
+    bool Memory::valid_boot_rom() {
+        return m_boot_rom.has_valid_cartridge();
+    }
+
+    void Memory::clear_memory() {
+        m_video_ram.clear_memory();
+        m_switchable_ram.clear_memory();
+        m_internal_ram.clear_memory();
+        m_sprite_ram.clear_memory();
+        m_empty_bus_ram.clear_memory();
+        m_io_ram.clear_memory();
+        m_empty_bus2_ram.clear_memory();
+        m_internal2_ram.clear_memory();
     }
 
     IoRamBank::IoRamBank(Memory &mem, register_16_t size, register_16_t offset) :

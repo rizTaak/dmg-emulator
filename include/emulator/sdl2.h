@@ -10,6 +10,7 @@ namespace emulator {
         register_8_t a,b,g,r;
     };
 #pragma pack(pop)
+    class Dmg;
 
     class Sdl2Host: public Host {
         SDL_Window *m_window;
@@ -17,7 +18,8 @@ namespace emulator {
         SDL_Texture *m_texture;
         SDL_Renderer *m_renderer;
         abgr *m_frame_buffer;
-        JoyPad *m_joy_pad;
+        JoyPad *m_joy_pad{};
+        Dmg *m_dmg{};
         size_t m_frames {};
         size_t m_seconds {};
 
@@ -38,10 +40,16 @@ namespace emulator {
 
         void process_input();
     public:
+        Sdl2Host(const Sdl2Host &other) = delete;
+        Sdl2Host(const Sdl2Host &&other) = delete;
+        Sdl2Host &operator=(const Sdl2Host &) = delete;
+        Sdl2Host &operator=(Sdl2Host &&) = delete;
+
         Sdl2Host();
         void step(clock_t ticks) override;
         void render_screen(Gpu &gpu) override;
         void connect_joy_pad(JoyPad *joy_pad) override;
+        void connect_dmg(Dmg *dmg) override;
         ~Sdl2Host() override;
     };
 }

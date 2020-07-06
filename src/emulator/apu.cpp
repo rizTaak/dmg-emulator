@@ -446,6 +446,10 @@ namespace emulator {
         SDL_PauseAudio(0);
     }
 
+    void Apu::clear_audio() {
+        SDL_ClearQueuedAudio(1);
+    }
+
     void Apu::step(clock_t ticks) {
         while (ticks > 0) {
             m_frame_seq_count--;

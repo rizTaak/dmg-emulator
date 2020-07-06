@@ -14,13 +14,16 @@ namespace emulator {
         size_t m_rom_size;
         size_t m_ram_size;
     public:
+        Cartridge(const Cartridge &other) = delete;
+        Cartridge(const Cartridge &&other) = delete;
+        Cartridge &operator=(const Cartridge &) = delete;
+        Cartridge &operator=(Cartridge &&) = delete;
+
         explicit Cartridge(CartridgeBank &bank);
 
         virtual bool is_valid(register_16_t address);
 
         virtual register_8_t read_byte(register_16_t address) = 0;
-
-        virtual register_8_t &get_ref_byte(register_16_t address) = 0;
 
         virtual void write_byte(register_16_t address, register_8_t value) = 0;
 
@@ -32,22 +35,45 @@ namespace emulator {
 
         cartridge_type cart_type();
 
-        size_t rom_size();
+        [[nodiscard]] size_t rom_size() const;
 
-        size_t ram_size();
+        [[nodiscard]] size_t ram_size() const;
 
         virtual bool has_ram() = 0;
 
         virtual bool has_battery() = 0;
     };
 
-    class Mbc0Cartridge : public Cartridge {
+    class NullCartridge : public Cartridge {
     public:
-        explicit Mbc0Cartridge(CartridgeBank &bank);
+        NullCartridge(const NullCartridge &other) = delete;
+        NullCartridge(const NullCartridge &&other) = delete;
+        NullCartridge &operator=(const NullCartridge &) = delete;
+        NullCartridge &operator=(NullCartridge &&) = delete;
+
+        explicit NullCartridge(CartridgeBank &bank);
 
         register_8_t read_byte(register_16_t address) override;
 
-        register_8_t &get_ref_byte(register_16_t address) override;
+        void write_byte(register_16_t address, register_8_t value) override;
+
+        bool has_ram() override { return false; };
+
+        bool has_battery() override { return false; };
+
+        ~NullCartridge() override = default;
+    };
+
+    class Mbc0Cartridge : public Cartridge {
+    public:
+        Mbc0Cartridge(const Mbc0Cartridge &other) = delete;
+        Mbc0Cartridge(const Mbc0Cartridge &&other) = delete;
+        Mbc0Cartridge &operator=(const Mbc0Cartridge &) = delete;
+        Mbc0Cartridge &operator=(Mbc0Cartridge &&) = delete;
+
+        explicit Mbc0Cartridge(CartridgeBank &bank);
+
+        register_8_t read_byte(register_16_t address) override;
 
         void write_byte(register_16_t address, register_8_t value) override;
 
@@ -70,14 +96,15 @@ namespace emulator {
 
         bool can_access_ram(register_16_t address);
 
-        size_t  combined_bank();
-
     public:
+        Mbc1Cartridge(const Mbc1Cartridge &other) = delete;
+        Mbc1Cartridge(const Mbc1Cartridge &&other) = delete;
+        Mbc1Cartridge &operator=(const Mbc1Cartridge &) = delete;
+        Mbc1Cartridge &operator=(Mbc1Cartridge &&) = delete;
+
         explicit Mbc1Cartridge(CartridgeBank &bank);
 
         register_8_t read_byte(register_16_t address) override;
-
-        register_8_t &get_ref_byte(register_16_t address) override;
 
         void write_byte(register_16_t address, register_8_t value) override;
 
@@ -99,14 +126,17 @@ namespace emulator {
 
         bool can_access_ram(register_16_t address);
 
-        size_t  combined_rom_bank();
+        [[nodiscard]] size_t  combined_rom_bank() const;
 
     public:
+        Mbc5Cartridge(const Mbc5Cartridge &other) = delete;
+        Mbc5Cartridge(const Mbc5Cartridge &&other) = delete;
+        Mbc5Cartridge &operator=(const Mbc5Cartridge &) = delete;
+        Mbc5Cartridge &operator=(Mbc5Cartridge &&) = delete;
+
         explicit Mbc5Cartridge(CartridgeBank &bank);
 
         register_8_t read_byte(register_16_t address) override;
-
-        register_8_t &get_ref_byte(register_16_t address) override;
 
         void write_byte(register_16_t address, register_8_t value) override;
 
@@ -127,11 +157,14 @@ namespace emulator {
         register_8_t *m_ram{};
 
     public:
+        Mbc3Cartridge(const Mbc3Cartridge &other) = delete;
+        Mbc3Cartridge(const Mbc3Cartridge &&other) = delete;
+        Mbc3Cartridge &operator=(const Mbc3Cartridge &) = delete;
+        Mbc3Cartridge &operator=(Mbc3Cartridge &&) = delete;
+
         explicit Mbc3Cartridge(CartridgeBank &bank);
 
         register_8_t read_byte(register_16_t address) override;
-
-        register_8_t &get_ref_byte(register_16_t address) override;
 
         void write_byte(register_16_t address, register_8_t value) override;
 
