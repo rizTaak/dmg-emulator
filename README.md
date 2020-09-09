@@ -1,5 +1,5 @@
 # dmg-emulator
-Original gameboy emulator written in c++ using sdl2
+Original gameboy emulator written in c++ using sdl2. Current performance is ~1.8K fps.
 
 ![](media/intro.gif)
 ![](media/mario.gif)
