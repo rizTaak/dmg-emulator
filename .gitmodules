@@ -1,4 +1,0 @@
-[submodule "vendor/spdlog"]
-	path = vendor/spdlog
-	url = ../../gabime/spdlog.git
-	branch = v1.x
