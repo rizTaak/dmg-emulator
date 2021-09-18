@@ -1,4 +1,0 @@
-[submodule "vendor/spldlog"]
-	path = endor/spdlog
-	url = https://github.com/gabime/spdlog.git
-	branch = v1.x
