@@ -9,7 +9,6 @@ Original gameboy emulator written in c++ using sdl2. Current performance is ~1.8
 ## Dependencies
 ```cmake
 find_package(SDL2 REQUIRED)
-find_package(spdlog REQUIRED)
 ```
 
 ## Test roms status
