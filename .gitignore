@@ -4,3 +4,7 @@ cmake-build-release
 roms
 .run
 docs
+
+.vscode
+CMakeFiles
+CMakeCache.txt
