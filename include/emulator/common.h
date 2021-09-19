@@ -3,8 +3,10 @@
 
 #include <cstdint>
 #include <csignal>
+#include <string>
 
-namespace emulator {
+namespace emulator
+{
     using register_8_t = uint8_t;
     using register_16_t = uint16_t;
     using register_32_t = uint32_t;
@@ -15,7 +17,10 @@ namespace emulator {
 
     static bool in_vblank = false;
 
-    enum cartridge_type : register_8_t {
+    static const std::string boot_room = "roms/dmg_rom.bin";
+
+    enum cartridge_type : register_8_t
+    {
         rom_only = 0x00,
         mbc1 = 0x01,
         mbc1_ram = 0x02,
