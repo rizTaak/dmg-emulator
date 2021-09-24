@@ -13,3 +13,4 @@ version.h
 dmg
 cmake_install.cmake
 Makefile
+build
