@@ -7,9 +7,11 @@ set(OpenGL_GL_PREFERENCE GLVND)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 
-find_package(SDL2 REQUIRED)
+set( SDL_STATIC ON CACHE BOOL "" FORCE )
+set( SDL_SHARED OFF CACHE BOOL "" FORCE )
+add_subdirectory(vendor/sdl2)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/vendor/sdl2/include)
 
-include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/vendor/spdlog/include)
 include_directories(include)
 
@@ -70,4 +72,4 @@ add_executable(${PROJECT_NAME} ${EMU_CPP_FILES} src/main.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL2main SDL2-static)

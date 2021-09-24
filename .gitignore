@@ -13,4 +13,6 @@ version.h
 dmg
 cmake_install.cmake
 Makefile
-build
+build/*
+!build/build.sh
+!build/clean.sh
